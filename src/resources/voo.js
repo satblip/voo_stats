@@ -101,20 +101,24 @@ module.exports.getDocsysLevels = async () => {
 
   const docsysLevels = (await docsysRequest.json()).data;
 
-  console.log(docsysLevels);
-
   const newSignalLevelsRow = {};
 
   // We fill info for OFDMA channel
-  newSignalLevelsRow.UP_5 = {
-    channel: docsysLevels.exUSTbl[0].ChannelID,
-    frequency: docsysLevels.exUSTbl[0].CentralFrequency.replace(' MHz', ''),
-    power: docsysLevels.exUSTbl[0].PowerLevel.replace(' dBmV', ''),
-    lockStatus: docsysLevels.exUSTbl[0].LockStatus
-  };
+  if (docsysLevels.exUSTbl[0].PowerLevel.replace(' dBmV', '') !== '') {
+    newSignalLevelsRow.UP_5 = {
+      channel: docsysLevels.exUSTbl[0].ChannelID,
+      frequency: docsysLevels.exUSTbl[0].CentralFrequency.replace(' MHz', ''),
+      power: docsysLevels.exUSTbl[0].PowerLevel.replace(' dBmV', ''),
+      lockStatus: docsysLevels.exUSTbl[0].LockStatus
+    };
+  }
 
   // We fill other upstream channels
   docsysLevels.USTbl.forEach((channel, index) => {
+    if (channel.PowerLevel.replace(' dBmV', '') === '') {
+      return;
+    }
+
     newSignalLevelsRow[`UP_${index + 1}`] = {
       channel: channel.ChannelID,
       frequency: channel.Frequency.replace(' MHz', ''),
@@ -124,16 +128,23 @@ module.exports.getDocsysLevels = async () => {
   });
 
   // We fill info for OFDM channel
-  newSignalLevelsRow.DOWN_162 = {
-    channel: docsysLevels.exDSTbl[0].ChannelID,
-    frequency: docsysLevels.exDSTbl[0].CentralFrequency.replace(' MHz', ''),
-    power: docsysLevels.exDSTbl[0].PowerLevel.replace(' dBmV', ''),
-    lockStatus: docsysLevels.exDSTbl[0].LockStatus,
-    SNRLevel: docsysLevels.exDSTbl[0].SNRLevel.replace(' dB', '')
-  };
+  if (docsysLevels.exDSTbl[0].replace(' dBmV', '') !== '') {
+    newSignalLevelsRow.DOWN_162 = {
+      channel: docsysLevels.exDSTbl[0].ChannelID,
+      frequency: docsysLevels.exDSTbl[0].CentralFrequency.replace(' MHz', ''),
+      power: docsysLevels.exDSTbl[0].PowerLevel.replace(' dBmV', ''),
+      lockStatus: docsysLevels.exDSTbl[0].LockStatus,
+      SNRLevel: docsysLevels.exDSTbl[0].SNRLevel.replace(' dB', '')
+    };
+  }
+
 
   // We fill other downstream channels
   docsysLevels.DSTbl.forEach((channel, index) => {
+    if (channel.PowerLevel.replace(' dBmV', '') === '') {
+      return;
+    }
+
     newSignalLevelsRow[`DOWN_${index + 1}`] = {
       channel: channel.ChannelID,
       frequency: channel.Frequency.replace(' MHz', ''),
