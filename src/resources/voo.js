@@ -101,13 +101,15 @@ module.exports.getDocsysLevels = async () => {
 
   const docsysLevels = (await docsysRequest.json()).data;
 
+  console.log(docsysLevels);
+
   const newSignalLevelsRow = {};
 
   // We fill info for OFDMA channel
   newSignalLevelsRow.UP_5 = {
     channel: docsysLevels.exUSTbl[0].ChannelID,
-    frequency: docsysLevels.exUSTbl[0].CentralFrequency,
-    power: docsysLevels.exUSTbl[0].PowerLevel,
+    frequency: docsysLevels.exUSTbl[0].CentralFrequency.replace(' MHz', ''),
+    power: docsysLevels.exUSTbl[0].PowerLevel.replace(' dBmV', ''),
     lockStatus: docsysLevels.exUSTbl[0].LockStatus
   };
 
@@ -115,8 +117,8 @@ module.exports.getDocsysLevels = async () => {
   docsysLevels.USTbl.forEach((channel, index) => {
     newSignalLevelsRow[`UP_${index + 1}`] = {
       channel: channel.ChannelID,
-      frequency: channel.Frequency,
-      power: channel.PowerLevel,
+      frequency: channel.Frequency.replace(' MHz', ''),
+      power: channel.PowerLevel.replace(' dBmV', ''),
       lockStatus: channel.LockStatus
     };
   });
@@ -124,20 +126,22 @@ module.exports.getDocsysLevels = async () => {
   // We fill info for OFDM channel
   newSignalLevelsRow.DOWN_162 = {
     channel: docsysLevels.exDSTbl[0].ChannelID,
-    frequency: docsysLevels.exDSTbl[0].CentralFrequency,
-    power: docsysLevels.exDSTbl[0].PowerLevel,
-    lockStatus: docsysLevels.exDSTbl[0].LockStatus
+    frequency: docsysLevels.exDSTbl[0].CentralFrequency.replace(' MHz', ''),
+    power: docsysLevels.exDSTbl[0].PowerLevel.replace(' dBmV', ''),
+    lockStatus: docsysLevels.exDSTbl[0].LockStatus,
+    SNRLevel: docsysLevels.exDSTbl[0].SNRLevel.replace(' dB', '')
   };
 
   // We fill other downstream channels
   docsysLevels.DSTbl.forEach((channel, index) => {
     newSignalLevelsRow[`DOWN_${index + 1}`] = {
       channel: channel.ChannelID,
-      frequency: channel.Frequency,
-      power: channel.PowerLevel,
+      frequency: channel.Frequency.replace(' MHz', ''),
+      power: channel.PowerLevel.replace(' dBmV', ''),
       lockStatus: channel.LockStatus,
       correcteds: channel.Correcteds,
-      uncorrectables: channel.Uncorrectables
+      uncorrectables: channel.Uncorrectables,
+      SNRLevel: channel.SNRLevel.replace(' dB', '')
     };
   });
 
