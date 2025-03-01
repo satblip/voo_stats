@@ -128,7 +128,7 @@ module.exports.getDocsysLevels = async () => {
   });
 
   // We fill info for OFDM channel
-  if (docsysLevels.exDSTbl[0].replace(' dBmV', '') !== '') {
+  if (docsysLevels.exDSTbl[0].PowerLevel.replace(' dBmV', '') !== '') {
     newSignalLevelsRow.DOWN_162 = {
       channel: docsysLevels.exDSTbl[0].ChannelID,
       frequency: docsysLevels.exDSTbl[0].CentralFrequency.replace(' MHz', ''),
